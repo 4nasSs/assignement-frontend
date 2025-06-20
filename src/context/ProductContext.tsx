@@ -5,8 +5,8 @@ interface ProductContextType {
   products: Product[];
   fetchProducts: () => void;
   addProduct: (product: Product) => Promise<boolean>;
-  updateProduct: (id: number, product: Product) => Promise<boolean>;
-  deleteProduct: (id: number) => Promise<boolean>;
+  updateProduct: (id: string, product: Product) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
 }
 
 export const ProductContext = createContext<ProductContextType>({} as ProductContextType);
@@ -39,7 +39,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
-  const updateProduct = async (id: number, product: Product) => {
+  const updateProduct = async (id: string, product: Product) => {
     try {
       const response = await fetch(`http://localhost:8080/api/products/${id}`, {
         method: 'PUT',
@@ -54,7 +54,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
-  const deleteProduct = async (id: number) => {
+  const deleteProduct = async (id: string) => {
     try {
       const response = await fetch(`http://localhost:8080/api/products/${id}`, {
         method: 'DELETE',

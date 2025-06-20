@@ -30,7 +30,7 @@ const ProductForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = isEdit
-      ? await updateProduct(Number(formData.id), formData)
+      ? await updateProduct(formData.id, formData)
       : await addProduct(formData);
 
     if (success) navigate('/');

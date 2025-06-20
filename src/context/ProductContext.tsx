@@ -1,6 +1,7 @@
-
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import axios from 'axios';
 import type { Product } from '../types/Product';
+
 interface ProductContextType {
   products: Product[];
   addProduct: (productData: Omit<Product, 'productId'>) => Promise<Product | undefined>;
@@ -25,12 +26,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(API_BASE_URL);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data: Product[] = await response.json();
-      setProducts(data);
+      const response = await axios.get<Product[]>(API_BASE_URL);
+      setProducts(response.data);
     } catch (err: any) {
       console.error("Failed to fetch products:", err);
       setError(err.message || "Failed to load products.");
@@ -43,14 +40,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`);
-      if (!response.ok) {
-        if (response.status === 404) {
-            throw new Error(`Product with ID ${id} not found.`);
-        }
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const data: Product = await response.json();
+      const response = await axios.get<Product>(`${API_BASE_URL}/${id}`);
+      const data = response.data;
       setProducts(prev => {
         const existingIndex = prev.findIndex(p => p.productId === data.productId);
         if (existingIndex > -1) {
@@ -63,7 +54,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       return data;
     } catch (err: any) {
       console.error(`Failed to fetch product ${id}:`, err);
-      setError(err.message || `Failed to load product ${id}.`);
+      if (axios.isAxiosError(err) && err.response && err.response.status === 404) {
+        setError(`Product with ID ${id} not found.`);
+      } else {
+        setError(err.message || `Failed to load product ${id}.`);
+      }
       return undefined;
     } finally {
       setLoading(false);
@@ -74,16 +69,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-      }
-      const createdProduct: Product = await response.json();
+      const response = await axios.post<Product>(API_BASE_URL, productData);
+      const createdProduct = response.data;
       setProducts(prevProducts => [...prevProducts, createdProduct]);
       return createdProduct;
     } catch (err: any) {
@@ -99,16 +86,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-      }
-      const updatedProduct: Product = await response.json();
+      const response = await axios.put<Product>(`${API_BASE_URL}/${id}`, productData);
+      const updatedProduct = response.data;
       setProducts(prevProducts =>
         prevProducts.map(p => (p.productId === id ? updatedProduct : p))
       );
@@ -126,13 +105,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-      }
+      await axios.delete<void>(`${API_BASE_URL}/${id}`);
       setProducts(prevProducts => prevProducts.filter(p => p.productId !== id));
       return true;
     } catch (err: any) {
@@ -162,4 +135,4 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       {children}
     </ProductContext.Provider>
   );
-};
+}; 

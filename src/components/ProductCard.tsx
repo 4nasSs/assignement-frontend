@@ -9,14 +9,31 @@ interface Props {
 
 const ProductCard: React.FC<Props> = ({ product, onDelete }) => {
   const navigate = useNavigate();
+
+  const handleEditClick = () => {
+    navigate(`/edit/${product.id}`);
+  };
+
   return (
-    <div className="border p-4 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold">{product.name}</h3>
-      <p className="text-gray-600">{product.description}</p>
-      <p className="text-green-600 font-semibold">${product.price.toFixed(2)}</p>
-      <div className="flex gap-2 mt-3">
-        <button onClick={() => navigate(`/edit/${product.id}`)} className="bg-yellow-500 text-white px-4 py-1 rounded">Edit</button>
-        <button onClick={() => onDelete(String(product.id))} className="bg-red-500 text-white px-4 py-1 rounded">Delete</button>
+    <div className="bg-white shadow-md rounded-lg p-4 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+      <div className="flex-grow mb-2 sm:mb-0">
+        <h3 className="text-xl font-semibold text-gray-800">{product.name}</h3>
+        <p className="text-gray-600 text-sm">{product.description}</p>
+        <p className="text-lg font-bold text-blue-600 mt-1">${product.price.toFixed(2)}</p>
+      </div>
+      <div className="flex space-x-2">
+        <button
+          onClick={handleEditClick}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition duration-200"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(product.id)}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition duration-200"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

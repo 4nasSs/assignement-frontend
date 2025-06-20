@@ -10,10 +10,10 @@ const ProductForm: React.FC = () => {
   const { products, addProduct, updateProduct, fetchProductById, loading, error } = useContext(ProductContext);
 
   const [formData, setFormData] = useState<Product>({
-    id: '',
-    name: '',
-    description: '',
-    price: 0,
+    productId: '',
+    productName: '',
+    productDescription: '',
+    productPrice: 0,
   });
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const ProductForm: React.FC = () => {
 
     const loadProductData = async () => {
       if (isEdit && id) {
-        const existing = products.find(p => p.id === id);
+        const existing = products.find(p => p.productId === id);
 
         if (existing) {
           if (mounted) setFormData(existing);
@@ -36,7 +36,7 @@ const ProductForm: React.FC = () => {
         }
       } else {
         if (mounted) {
-          setFormData({ id: '', name: '', description: '', price: 0 });
+          setFormData({ productId: '', productName: '', productDescription: '', productPrice: 0 });
         }
       }
     };
@@ -46,12 +46,11 @@ const ProductForm: React.FC = () => {
     return () => { mounted = false; };
   }, [id, isEdit, products, fetchProductById, navigate]);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' ? parseFloat(value) : value,
+      [name]: name === 'productPrice' ? parseFloat(value) : value,
     }));
   };
 
@@ -60,13 +59,13 @@ const ProductForm: React.FC = () => {
     let success = false;
     try {
       if (isEdit) {
-        const updated = await updateProduct(formData.id, formData);
+        const updated = await updateProduct(formData.productId, formData);
         success = !!updated;
       } else {
         const productDataForAdd = {
-          name: formData.name,
-          description: formData.description,
-          price: formData.price,
+          productName: formData.productName,
+          productDescription: formData.productDescription,
+          productPrice: formData.productPrice,
         };
         const added = await addProduct(productDataForAdd);
         success = !!added;
@@ -83,7 +82,7 @@ const ProductForm: React.FC = () => {
     }
   };
 
-  if (loading && isEdit && !formData.id) {
+  if (loading && isEdit && !formData.productId) {
     return <div className="p-6 text-center text-gray-600">Loading product details...</div>;
   }
   if (error) {
@@ -95,12 +94,12 @@ const ProductForm: React.FC = () => {
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">{isEdit ? 'Edit Product' : 'Add Product'}</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={formData.name}
+            id="productName"
+            name="productName"
+            value={formData.productName}
             onChange={handleChange}
             placeholder="Product Name"
             className="w-full border border-gray-300 p-3 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -108,11 +107,10 @@ const ProductForm: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label htmlFor="productDescription" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea
-            id="description"
-            name="description"
-            value={formData.description}
+            id="productDescription"
+            name="productDescription"
             onChange={handleChange}
             placeholder="Product Description"
             rows={4}
@@ -120,12 +118,12 @@ const ProductForm: React.FC = () => {
           />
         </div>
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+          <label htmlFor="productPrice" className="block text-sm font-medium text-gray-700 mb-1">Price</label>
           <input
             type="number"
-            id="price"
-            name="price"
-            value={formData.price}
+            id="productPrice"
+            name="productPrice" // Use productPrice
+            value={formData.productPrice}
             onChange={handleChange}
             placeholder="Price"
             step="0.01"

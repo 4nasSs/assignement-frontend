@@ -1,12 +1,9 @@
 
-
 import React, { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Product } from '../types/Product';
-
-
 interface ProductContextType {
   products: Product[];
-  addProduct: (productData: Omit<Product, 'id'>) => Promise<Product | undefined>;
+  addProduct: (productData: Omit<Product, 'productId'>) => Promise<Product | undefined>;
   updateProduct: (id: string, productData: Product) => Promise<Product | undefined>;
   deleteProduct: (id: string) => Promise<boolean>;
   fetchProducts: () => Promise<void>;
@@ -15,9 +12,7 @@ interface ProductContextType {
   error: string | null;
 }
 
-
 export const ProductContext = createContext<ProductContextType>({} as ProductContextType);
-
 
 const API_BASE_URL = 'http://localhost:8080/api/products';
 
@@ -57,7 +52,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
       const data: Product = await response.json();
       setProducts(prev => {
-        const existingIndex = prev.findIndex(p => p.id === data.id);
+        const existingIndex = prev.findIndex(p => p.productId === data.productId);
         if (existingIndex > -1) {
           const newProducts = [...prev];
           newProducts[existingIndex] = data;
@@ -75,7 +70,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, []);
 
-  const addProduct = async (productData: Omit<Product, 'id'>) => {
+  const addProduct = async (productData: Omit<Product, 'productId'>) => {
     setLoading(true);
     setError(null);
     try {
@@ -115,7 +110,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
       const updatedProduct: Product = await response.json();
       setProducts(prevProducts =>
-        prevProducts.map(p => (p.id === id ? updatedProduct : p))
+        prevProducts.map(p => (p.productId === id ? updatedProduct : p))
       );
       return updatedProduct;
     } catch (err: any) {
@@ -138,7 +133,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         const errorData = await response.json();
         throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
       }
-      setProducts(prevProducts => prevProducts.filter(p => p.id !== id));
+      setProducts(prevProducts => prevProducts.filter(p => p.productId !== id));
       return true;
     } catch (err: any) {
       console.error("Error deleting product:", err);
@@ -148,7 +143,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchProducts();
